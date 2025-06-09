@@ -1,0 +1,259 @@
+/* App.css - Todo 애플리케이션 스타일 */
+
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #282c34;
+  padding: 20px;
+  color: white;
+  min-height: 100vh;
+}
+
+.App-header h1 {
+  margin-bottom: 30px;
+  color: #61dafb;
+}
+
+/* === Todo 폼 스타일 === */
+.todo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 500px;
+  margin: 0 auto 30px auto;
+  padding: 20px;
+  background-color: #3a3f47;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.todo-input {
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: #f5f5f5;
+  transition: background-color 0.3s ease;
+}
+
+.todo-input:focus {
+  outline: none;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 2px #61dafb;
+}
+
+.add-button {
+  padding: 12px 24px;
+  background-color: #61dafb;
+  color: #282c34;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-button:hover {
+  background-color: #21a9c7;
+  transform: translateY(-1px);
+}
+
+/* === Todo 목록 스타일 === */
+.todo-list {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.todo-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border-left: 4px solid #61dafb;
+}
+
+.todo-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* === 완료된 Todo 아이템 스타일 === */
+.todo-item.completed {
+  background-color: #e9ecef;
+  border-left-color: #28a745;
+  opacity: 0.8;
+}
+
+.todo-item.completed:hover {
+  transform: none; /* 완료된 항목은 hover 효과 제거 */
+}
+
+.todo-content {
+  flex: 1;
+  text-align: left;
+  color: #333;
+}
+
+.todo-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.todo-content p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.4;
+  transition: all 0.3s ease;
+}
+
+/* === 핵심! 완료된 텍스트에 취소선 적용 === */
+.completed-text {
+  text-decoration: line-through !important;
+  color: #999 !important;
+  opacity: 0.7;
+}
+
+/* === 버튼 스타일 === */
+.todo-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.toggle-button, .delete-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* 완료 버튼 - 상태에 따른 스타일 */
+.incomplete-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.incomplete-button:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+}
+
+.completed-button {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.completed-button:hover {
+  background-color: #e0a800;
+  transform: scale(1.05);
+}
+
+/* 삭제 버튼 */
+.delete-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+  transform: scale(1.05);
+}
+
+/* === 빈 상태 메시지 === */
+.empty-message {
+  color: #adb5bd;
+  font-style: italic;
+  margin-top: 40px;
+  font-size: 18px;
+}
+
+/* === 반응형 디자인 === */
+@media (max-width: 768px) {
+  .todo-form {
+    max-width: 90%;
+    margin: 0 auto 20px auto;
+  }
+
+  .todo-list {
+    max-width: 90%;
+  }
+
+  .todo-item {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .todo-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .toggle-button, .delete-button {
+    flex: 1;
+    padding: 10px;
+  }
+}
+
+/* === 애니메이션 효과 === */
+@keyframes strikethrough {
+  from {
+    text-decoration: none;
+  }
+  to {
+    text-decoration: line-through;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.todo-item {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* === 고급 취소선 효과 (선택사항) === */
+.completed-text-animated {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.completed-text-animated::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 2px;
+  background-color: #dc3545;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.completed .completed-text-animated::after {
+  transform: scaleX(1);
+}
