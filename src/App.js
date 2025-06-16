@@ -1,5 +1,3 @@
-// ===== React 컴포넌트 수정 부분 =====
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
@@ -57,62 +55,72 @@ function App() {
     }
   };
 
+  // 에러 테스트 함수 추가
+  const triggerError = async () => {
+    try {
+      await axios.get(`${API_URL}/error`);
+    } catch (error) {
+      console.error('의도적인 에러 발생:', error);
+    }
+  };
+
   return (
-      <div className="App">
-        <header className="App-header">
-          <h1>Todo 애플리케이션</h1>
+    <div className="App">
+      <header className="App-header">
+        <h1>Todo 애플리케이션</h1>
 
-          <form onSubmit={createTodo} className="todo-form">
-            <input
-                type="text"
-                placeholder="할 일 제목"
-                value={newTodo.title}
-                onChange={(e) => setNewTodo({ ...newTodo, title: e.target.value })}
-                className="todo-input"
-            />
-            <input
-                type="text"
-                placeholder="설명 (선택사항)"
-                value={newTodo.description}
-                onChange={(e) => setNewTodo({ ...newTodo, description: e.target.value })}
-                className="todo-input"
-            />
-            <button type="submit" className="add-button">추가</button>
-          </form>
+        <form onSubmit={createTodo} className="todo-form">
+          <input
+            type="text"
+            placeholder="할 일 제목"
+            value={newTodo.title}
+            onChange={(e) => setNewTodo({ ...newTodo, title: e.target.value })}
+            className="todo-input"
+          />
+          <input
+            type="text"
+            placeholder="설명 (선택사항)"
+            value={newTodo.description}
+            onChange={(e) => setNewTodo({ ...newTodo, description: e.target.value })}
+            className="todo-input"
+          />
+          <button type="submit" className="add-button">추가</button>
+          <button type="button" onClick={triggerError} className="error-button">Error 발생</button>
+        </form>
 
-          {/* 수정된 부분: isComplete 필드 사용 및 completed 클래스 적용 */}
-          <div className="todo-list">
-            {todos.map(todo => (
-                <div key={todo.id} className={`todo-item ${todo.isComplete ? 'completed' : ''}`}>
-                  <div className="todo-content">
-                    <h3 className={todo.isComplete ? 'completed-text' : ''}>{todo.title}</h3>
-                    {todo.description && (
-                        <p className={todo.isComplete ? 'completed-text' : ''}>{todo.description}</p>
-                    )}
-                  </div>
-                  <div className="todo-actions">
-                    <button
-                        onClick={() => toggleTodo(todo.id, todo)}
-                        className={`toggle-button ${todo.isComplete ? 'completed-button' : 'incomplete-button'}`}
-                    >
-                      {todo.isComplete ? '완료 취소' : '완료'}
-                    </button>
-                    <button
-                        onClick={() => deleteTodo(todo.id)}
-                        className="delete-button"
-                    >
-                      삭제
-                    </button>
-                  </div>
-                </div>
-            ))}
-          </div>
+        {/* 수정된 부분: isComplete 필드 사용 및 completed 클래스 적용 */}
+        <div className="todo-list">
+          {todos.map(todo => (
+            <div key={todo.id} className={`todo-item ${todo.isComplete ? 'completed' : ''}`}>
+              <div className="todo-content">
+                <h3 className={todo.isComplete ? 'completed-text' : ''}>{todo.title}</h3>
+                {todo.description && (
+                  <p className={todo.isComplete ? 'completed-text' : ''}>{todo.description}</p>
+                )}
+              </div>
+              <div className="todo-actions">
+                <button
+                  onClick={() => toggleTodo(todo.id, todo)}
+                  className={`toggle-button ${todo.isComplete ? 'completed-button' : 'incomplete-button'}`}
+                >
+                  {todo.isComplete ? '완료 취소' : '완료'}
+                </button>
+                <button
+                  onClick={() => deleteTodo(todo.id)}
+                  className="delete-button"
+                >
+                  삭제
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
 
-          {todos.length === 0 && (
-              <p className="empty-message">아직 할 일이 없습니다. 새로운 할 일을 추가해보세요!</p>
-          )}
-        </header>
-      </div>
+        {todos.length === 0 && (
+          <p className="empty-message">아직 할 일이 없습니다. 새로운 할 일을 추가해보세요!</p>
+        )}
+      </header>
+    </div>
   );
 }
 
