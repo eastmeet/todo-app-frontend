@@ -7,9 +7,85 @@ const API_URL = 'http://localhost:8080/api/v1/todo';
 function App() {
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState({ title: '', description: '' });
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     fetchTodos();
+  }, []);
+
+  // SSE 연결 설정
+  useEffect(() => {
+    let eventSource;
+    let reconnectTimeout;
+    
+    const connectSSE = () => {
+      console.log('SSE 연결 시도 중...');
+      eventSource = new EventSource('http://localhost:8080/api/v1/notifications/stream');
+      
+      // 연결 열림 이벤트
+      eventSource.onopen = (event) => {
+        console.log('SSE 연결 성공!');
+        console.log('readyState:', eventSource.readyState);
+      };
+      
+      // 기본 onmessage 핸들러 (이름 없는 이벤트용)
+      eventSource.onmessage = (event) => {
+        console.log('기본 메시지 수신:', event.data);
+      };
+      
+      // 'message' 이벤트 리스너
+      eventSource.addEventListener('message', (event) => {
+        console.log('message 이벤트 수신:', event.data);
+        try {
+          const notification = JSON.parse(event.data);
+          const notificationId = Date.now();
+          const newNotification = { 
+            id: notificationId, 
+            message: notification.message, 
+            timestamp: new Date(),
+            read: false 
+          };
+          setNotifications(prev => [...prev, newNotification]);
+          setUnreadCount(prev => prev + 1);
+        } catch (error) {
+          console.error('알림 파싱 오류:', error);
+        }
+      });
+      
+      // 'connect' 이벤트 리스너
+      eventSource.addEventListener('connect', (event) => {
+        console.log('connect 이벤트 수신:', event.data);
+      });
+      
+      eventSource.onerror = (error) => {
+        console.error('SSE 연결 오류 발생');
+        console.error('readyState:', eventSource.readyState);
+        
+        if (eventSource.readyState === EventSource.CLOSED) {
+          console.log('연결이 닫혔습니다. 5초 후 재연결 시도...');
+          eventSource.close();
+          
+          // 5초 후 재연결
+          reconnectTimeout = setTimeout(() => {
+            connectSSE();
+          }, 5000);
+        }
+      };
+    };
+    
+    connectSSE();
+    
+    // 컴포넌트 언마운트 시 정리
+    return () => {
+      if (eventSource) {
+        eventSource.close();
+      }
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+      }
+    };
   }, []);
 
   const fetchTodos = async () => {
@@ -64,10 +140,75 @@ function App() {
     }
   };
 
+  const handleNotificationClick = () => {
+    setShowNotifications(!showNotifications);
+    if (!showNotifications) {
+      // 알림을 열 때 모두 읽음 처리
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
+    }
+  };
+
+  const removeNotification = (id) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Todo 애플리케이션</h1>
+        <div className="header-top">
+          <h1>Todo 애플리케이션</h1>
+          <div className="notification-bell-container">
+            <button 
+              className="notification-bell"
+              onClick={handleNotificationClick}
+            >
+              <span className="bell-icon">🔔</span>
+              {unreadCount > 0 && (
+                <span className="notification-badge">{unreadCount}</span>
+              )}
+            </button>
+            
+            {showNotifications && (
+              <div className="notification-dropdown">
+                <div className="notification-dropdown-header">
+                  <h3>알림</h3>
+                  <button 
+                    onClick={() => setNotifications([])}
+                    className="clear-all-btn"
+                  >
+                    모두 지우기
+                  </button>
+                </div>
+                <div className="notification-list">
+                  {notifications.length === 0 ? (
+                    <p className="no-notifications">새로운 알림이 없습니다</p>
+                  ) : (
+                    notifications.map(notification => (
+                      <div 
+                        key={notification.id} 
+                        className={`notification-item ${notification.read ? 'read' : 'unread'}`}
+                      >
+                        <div className="notification-content">
+                          <p>{notification.message}</p>
+                          <span className="notification-time">
+                            {new Date(notification.timestamp).toLocaleTimeString()}
+                          </span>
+                        </div>
+                        <button 
+                          onClick={() => removeNotification(notification.id)}
+                          className="notification-remove"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
 
         <form onSubmit={createTodo} className="todo-form">
           <input
